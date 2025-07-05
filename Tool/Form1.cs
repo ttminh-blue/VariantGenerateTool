@@ -70,7 +70,6 @@ namespace Tool
                 sb.AppendLine($"    private readonly List<(int fieldId, bool isRequired, bool isOptional, bool isOutput, bool isAppended)> _fieldsVariant{variantIndex} =");
                 sb.AppendLine("    [");
 
-                // Tìm độ dài field name dài nhất
                 int maxFieldNameLen = variant.Fields.Max(f => f.FieldName.Length);
 
                 foreach (var field in variant.Fields)
@@ -91,7 +90,7 @@ namespace Tool
                 sb.AppendLine("    ];");
                 sb.AppendLine();
                 variantIndex++;
-            }
+                }
 
             sb.AppendLine($"    public {className}()");
             sb.AppendLine("    {");
@@ -229,7 +228,7 @@ namespace Tool
                 ParseMetadata(metaTable, variant);
 
                 var fieldTables = doc.DocumentNode
-                    .SelectNodes("//table[.//th[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname')]]");
+                                 .SelectNodes("//table[.//th[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
 
                 var table = fieldTables?
                     .Where(t => t.StreamPosition > variantNode.StreamPosition)
