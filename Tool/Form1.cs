@@ -15,6 +15,7 @@ namespace Tool
             public string DatasourceID { get; set; }
             public string Countries { get; set; }
             public List<VariantModel> ListVariants { get; set; }
+            public List<DatasourceConfigModel> DatasourceConfigs { get; set; }
         }
         public class VariantModel
         {
@@ -33,6 +34,12 @@ namespace Tool
             public bool Output { get; set; }
             public bool Appended { get; set; }
             public string Comments { get; set; }
+        }
+        public class DatasourceConfigModel
+        {
+            public string ConfigurationParameter { get; set; }
+            public string ConfigurationValue { get; set; }
+            public string Notes { get; set; }
         }
         private bool convertStringToBool(string value)
         {
@@ -61,7 +68,6 @@ namespace Tool
             int variantIndex = 1;
             foreach (var variant in ds.ListVariants)
             {
-                // comment theo note
                 string noteComment = !string.IsNullOrWhiteSpace(variant.Note)
                     ? $"// Variant {variantIndex}: {variant.Note}"
                     : $"// Variant {variantIndex}";
@@ -150,6 +156,27 @@ namespace Tool
             }
 
             sb.AppendLine("        ];");
+
+            if (datasource.DatasourceConfigs?.Any() == true)
+            {
+                sb.AppendLine();
+                sb.AppendLine("        DatasourceConfigurationParameters =");
+                sb.AppendLine("        [");
+
+                foreach (var config in datasource.DatasourceConfigs)
+                {
+                    sb.AppendLine("            new DatasourceConfigurationParameterData");
+                    sb.AppendLine("            {");
+                    sb.AppendLine($"                DatasourceId = _datasourceID,");
+                    sb.AppendLine($"                Name = \"{config.ConfigurationParameter}\",");
+                    sb.AppendLine($"                CountryId = (int)CountryEnum.{ds.Countries},");
+                    sb.AppendLine($"                Value = \"{config.ConfigurationValue}\",");
+                    sb.AppendLine($"                Note = \"{config.Notes.Replace("\"", "\\\"")}\"");
+                    sb.AppendLine("            },");
+                }
+
+                sb.AppendLine("        ];");
+            }
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
@@ -204,6 +231,34 @@ namespace Tool
             }
 
             return info;
+        }
+        private List<DatasourceConfigModel> ParseDatasourceConfig(HtmlAgilityPack.HtmlDocument doc)
+        {
+            var result = new List<DatasourceConfigModel>();
+
+            var tableNode = doc.DocumentNode.SelectSingleNode("//table[.//th[contains(text(), 'Configuration Parameter')]]");
+            if (tableNode == null) return result;
+
+            var rowNodes = tableNode.SelectNodes(".//tr");
+            if (rowNodes == null) return result;
+
+            foreach (var row in rowNodes.Skip(1)) 
+            {
+                var cells = row.SelectNodes(".//td");
+                if (cells == null || cells.Count < 3)
+                    continue;
+
+                var config = new DatasourceConfigModel
+                {
+                    ConfigurationParameter = HtmlEntity.DeEntitize(cells[0].InnerText.Trim()),
+                    ConfigurationValue = HtmlEntity.DeEntitize(cells[1].InnerText.Trim()),
+                    Notes = HtmlEntity.DeEntitize(cells[2].InnerText.Trim())
+                };
+
+                result.Add(config);
+            }
+
+            return result;
         }
 
         private List<VariantModel> GetVariants(HtmlAgilityPack.HtmlDocument doc)
@@ -340,7 +395,8 @@ namespace Tool
                 datasource = ParseDatasourceInfo(doc);
                 var listVariants = GetVariants(doc);
                 datasource.ListVariants = listVariants;
-
+                var configs = ParseDatasourceConfig(doc);
+                datasource.DatasourceConfigs = configs;
                 string text = GenerateDatasourceClass(datasource);
                 txtContent.Text = text;
             }
