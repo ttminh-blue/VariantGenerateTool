@@ -303,7 +303,7 @@ namespace Tool
                 ParseMetadata(metaTable, variant);
 
                 var fieldTables = doc.DocumentNode
-                                 .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
+                                 .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
 
                 var table = fieldTables?
                     .Where(t => t.StreamPosition > variantNode.StreamPosition)
