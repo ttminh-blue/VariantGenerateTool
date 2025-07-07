@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Tool
 {
@@ -61,7 +62,17 @@ namespace Tool
         {
             var sb = new StringBuilder();
 
-            string className = ds.CommandName?.Replace(" ", "") ?? "GeneratedClass";
+            string rawName = ds.DatasourceName ?? "GeneratedClass";
+            int dashIndex = rawName.IndexOf('-');
+            if (dashIndex >= 0)
+            {
+                rawName = rawName.Substring(0, dashIndex);
+            }
+            string className = Regex.Replace(rawName, @"[^a-zA-Z0-9]", "");
+            if (string.IsNullOrEmpty(className))
+            {
+                className = "GeneratedClass";
+            }
             var countries = CountriesDict.NameToCode[ds.Countries];
             sb.AppendLine($"public class {className} : CreateDatasourceRequest");
             sb.AppendLine("{");
