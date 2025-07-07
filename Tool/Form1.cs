@@ -62,7 +62,7 @@ namespace Tool
             var sb = new StringBuilder();
 
             string className = ds.CommandName?.Replace(" ", "") ?? "GeneratedClass";
-
+            var countries = CountriesDict.NameToCode[ds.Countries];
             sb.AppendLine($"public class {className} : CreateDatasourceRequest");
             sb.AppendLine("{");
             sb.AppendLine($"    private const int _datasourceID        = DatasourceIds.{className};");
@@ -70,7 +70,7 @@ namespace Tool
             sb.AppendLine($"    private const string _datasourceGroupName = \"{ds.DatasourceGroupName}\";");
             sb.AppendLine($"    private const string _datasourceName      = \"{ds.DatasourceName}\";");
             sb.AppendLine($"    private const string _commandName         = \"{ds.CommandName}\";");
-            sb.AppendLine($"    private static readonly int[] _countryIDs = [(int)CountryEnum.{ds.Countries}];");
+            sb.AppendLine($"    private static readonly int[] _countryIDs = [(int)CountryEnum.{countries}];");
             sb.AppendLine();
 
             int variantIndex = 1;
@@ -129,7 +129,7 @@ namespace Tool
             sb.AppendLine("            ProductList     = [(int)ProductEnum.IdentityVerification],");
             sb.AppendLine("            IsTestable      = true,");
             sb.AppendLine("            AllowAppendData = true,");
-            sb.AppendLine($"            CountryFields   = new Dictionary<int, int[]> {{ {{ (int)CountryEnum.{ds.Countries}, [] }} }}");
+            sb.AppendLine($"            CountryFields   = new Dictionary<int, int[]> {{ {{ (int)CountryEnum.{countries}, [] }} }}");
             sb.AppendLine("        };");
             sb.AppendLine();
 
@@ -177,7 +177,7 @@ namespace Tool
                     sb.AppendLine("            {");
                     sb.AppendLine($"                DatasourceId = _datasourceID,");
                     sb.AppendLine($"                Name = \"{config.ConfigurationParameter}\",");
-                    sb.AppendLine($"                CountryId = (int)CountryEnum.{ds.Countries},");
+                    sb.AppendLine($"                CountryId = (int)CountryEnum.{countries},");
                     sb.AppendLine($"                Value = \"{config.ConfigurationValue}\",");
                     sb.AppendLine($"                Note = \"{config.Notes.Replace("\"", "\\\"")}\"");
                     sb.AppendLine("            },");
