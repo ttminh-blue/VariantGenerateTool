@@ -295,14 +295,15 @@ namespace Tool
                     continue;
 
                 HtmlNode? metaTable = doc.DocumentNode
-                    .SelectNodes("//table[.//th[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'informationtype')]]")
-                    ?.OrderBy(t => Math.Abs(t.StreamPosition - variantNode.StreamPosition))
-                    .FirstOrDefault();
+                                    .SelectNodes("//table[.//th[contains(translate(string(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', 'abcdefghijklmnopqrstuvwxyz'), 'informationtype')]]")
+                                    ?.OrderBy(t => Math.Abs(t.StreamPosition - variantNode.StreamPosition))
+                                    .FirstOrDefault();
+
 
                 ParseMetadata(metaTable, variant);
 
                 var fieldTables = doc.DocumentNode
-                                 .SelectNodes("//table[.//th[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
+                                 .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
 
                 var table = fieldTables?
                     .Where(t => t.StreamPosition > variantNode.StreamPosition)
