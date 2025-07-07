@@ -51,7 +51,7 @@ namespace Tool
 
         private bool convertStringToBool(string value)
         {
-            if (value.ToLower().Equals("yes", StringComparison.OrdinalIgnoreCase))
+            if (value.ToLower().Equals("yes", StringComparison.OrdinalIgnoreCase) || value.ToLower().Equals("true", StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
