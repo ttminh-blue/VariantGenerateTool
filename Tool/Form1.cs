@@ -206,7 +206,7 @@ namespace Tool
         {
             var info = new DataSourceInfo();
 
-            var table = doc.DocumentNode.SelectSingleNode("//table[.//th[contains(text(), 'Vendor Name')]]");
+            var table = doc.DocumentNode.SelectSingleNode("//table[.//th[contains(normalize-space(string(.)), 'Vendor Name')]]");
 
             if (table == null)
                 return info;
@@ -255,7 +255,7 @@ namespace Tool
         {
             var result = new List<DatasourceConfigModel>();
 
-            var tableNode = doc.DocumentNode.SelectSingleNode("//table[.//th[contains(text(), 'Configuration Parameter')]]");
+            var tableNode = doc.DocumentNode.SelectSingleNode("//table[.//th[contains(normalize-space(string(.)), 'Configuration Parameter')]]");
             if (tableNode == null) return result;
 
             var rowNodes = tableNode.SelectNodes(".//tr");
@@ -283,7 +283,7 @@ namespace Tool
         private List<VariantModel> GetVariants(HtmlAgilityPack.HtmlDocument doc)
         {
             var variants = new List<VariantModel>();
-            var variantNodes = doc.DocumentNode.SelectNodes("//*[contains(text(), 'Variant #')]");
+            var variantNodes = doc.DocumentNode.SelectNodes("//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'variant')]");
 
             if (variantNodes == null) return variants;
 
