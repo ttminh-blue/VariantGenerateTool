@@ -32,24 +32,23 @@
             btnClick = new Button();
             label1 = new Label();
             txtContent = new TextBox();
-            txtEmail = new TextBox();
-            label2 = new Label();
-            label3 = new Label();
-            txtToken = new TextBox();
+            txtCopy = new Button();
             SuspendLayout();
             // 
             // txtUrl
             // 
-            txtUrl.Location = new Point(72, 26);
+            txtUrl.Location = new Point(103, 43);
+            txtUrl.Margin = new Padding(4, 5, 4, 5);
             txtUrl.Name = "txtUrl";
-            txtUrl.Size = new Size(313, 23);
+            txtUrl.Size = new Size(1136, 31);
             txtUrl.TabIndex = 0;
             // 
             // btnClick
             // 
-            btnClick.Location = new Point(1035, 25);
+            btnClick.Location = new Point(1283, 36);
+            btnClick.Margin = new Padding(4, 5, 4, 5);
             btnClick.Name = "btnClick";
-            btnClick.Size = new Size(75, 23);
+            btnClick.Size = new Size(107, 38);
             btnClick.TabIndex = 1;
             btnClick.Text = "Click";
             btnClick.UseVisualStyleBackColor = true;
@@ -58,65 +57,45 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(26, 29);
+            label1.Location = new Point(37, 48);
+            label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
-            label1.Size = new Size(31, 15);
+            label1.Size = new Size(47, 25);
             label1.TabIndex = 2;
             label1.Text = "URL:";
             // 
             // txtContent
             // 
-            txtContent.Location = new Point(23, 62);
+            txtContent.Location = new Point(33, 103);
+            txtContent.Margin = new Padding(4, 5, 4, 5);
             txtContent.Multiline = true;
             txtContent.Name = "txtContent";
-            txtContent.Size = new Size(1087, 489);
+            txtContent.ScrollBars = ScrollBars.Both;
+            txtContent.Size = new Size(1551, 812);
             txtContent.TabIndex = 3;
             // 
-            // txtEmail
+            // txtCopy
             // 
-            txtEmail.Location = new Point(450, 27);
-            txtEmail.Name = "txtEmail";
-            txtEmail.Size = new Size(234, 23);
-            txtEmail.TabIndex = 4;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(405, 30);
-            label2.Name = "label2";
-            label2.Size = new Size(39, 15);
-            label2.TabIndex = 5;
-            label2.Text = "Email:";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(699, 30);
-            label3.Name = "label3";
-            label3.Size = new Size(41, 15);
-            label3.TabIndex = 6;
-            label3.Text = "Token:";
-            // 
-            // txtToken
-            // 
-            txtToken.Location = new Point(746, 26);
-            txtToken.Name = "txtToken";
-            txtToken.Size = new Size(283, 23);
-            txtToken.TabIndex = 7;
+            txtCopy.Location = new Point(1425, 35);
+            txtCopy.Margin = new Padding(4, 5, 4, 5);
+            txtCopy.Name = "txtCopy";
+            txtCopy.Size = new Size(107, 38);
+            txtCopy.TabIndex = 4;
+            txtCopy.Text = "Copy";
+            txtCopy.UseVisualStyleBackColor = true;
+            txtCopy.Click += txtCopy_Click;
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1136, 563);
-            Controls.Add(txtToken);
-            Controls.Add(label3);
-            Controls.Add(label2);
-            Controls.Add(txtEmail);
+            ClientSize = new Size(1623, 938);
+            Controls.Add(txtCopy);
             Controls.Add(txtContent);
             Controls.Add(label1);
             Controls.Add(btnClick);
             Controls.Add(txtUrl);
+            Margin = new Padding(4, 5, 4, 5);
             Name = "Form1";
             Text = "Generate Variants";
             ResumeLayout(false);
@@ -129,9 +108,6 @@
         private Button btnClick;
         private Label label1;
         private TextBox txtContent;
-        private TextBox txtEmail;
-        private Label label2;
-        private Label label3;
-        private TextBox txtToken;
+        private Button txtCopy;
     }
 }

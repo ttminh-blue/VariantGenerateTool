@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -41,6 +42,13 @@ namespace Tool
             public string ConfigurationValue { get; set; }
             public string Notes { get; set; }
         }
+
+        public class ConfigModel
+        {
+            public string Email { get; set; }
+            public string ApiToken { get; set; }
+        }
+
         private bool convertStringToBool(string value)
         {
             if (value.ToLower().Equals("yes", StringComparison.OrdinalIgnoreCase))
@@ -96,7 +104,7 @@ namespace Tool
                 sb.AppendLine("    ];");
                 sb.AppendLine();
                 variantIndex++;
-                }
+            }
 
             sb.AppendLine($"    public {className}()");
             sb.AppendLine("    {");
@@ -242,7 +250,7 @@ namespace Tool
             var rowNodes = tableNode.SelectNodes(".//tr");
             if (rowNodes == null) return result;
 
-            foreach (var row in rowNodes.Skip(1)) 
+            foreach (var row in rowNodes.Skip(1))
             {
                 var cells = row.SelectNodes(".//td");
                 if (cells == null || cells.Count < 3)
@@ -368,7 +376,14 @@ namespace Tool
 
             return fields;
         }
+        private ConfigModel? LoadConfig(string path = "config.json")
+        {
+            if (!File.Exists(path))
+                throw new FileNotFoundException("Config file not found");
 
+            string json = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<ConfigModel>(json);
+        }
         public Form1()
         {
             InitializeComponent();
@@ -378,8 +393,9 @@ namespace Tool
         private async void btnClick_Click(object sender, EventArgs e)
         {
             string confluenceUrl = txtUrl.Text;
-            string username = txtEmail.Text;
-            string apiToken = txtToken.Text;
+            var config = LoadConfig();
+            string? username = config?.Email;
+            string? apiToken = config?.ApiToken;
 
             string basicAuth = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{username}:{apiToken}"));
 
@@ -400,6 +416,12 @@ namespace Tool
                 string text = GenerateDatasourceClass(datasource);
                 txtContent.Text = text;
             }
+        }
+
+        private void txtCopy_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(txtContent.Text);
+            MessageBox.Show("Copied to clipboard!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
