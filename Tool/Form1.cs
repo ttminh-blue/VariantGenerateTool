@@ -80,7 +80,7 @@ namespace Tool
             sb.AppendLine($"    private const int _commandID          = CommandTypeIds.{className};");
             sb.AppendLine($"    private const string _datasourceGroupName = \"{ds.DatasourceGroupName}\";");
             sb.AppendLine($"    private const string _datasourceName      = \"{ds.DatasourceName}\";");
-            sb.AppendLine($"    private const string _commandName         = \"{ds.CommandName}\";");
+            sb.AppendLine($"    private const string _commandName         = \"{className}\";");
             sb.AppendLine($"    private static readonly int[] _countryIDs = [(int)CountryEnum.{countries}];");
             sb.AppendLine();
 
