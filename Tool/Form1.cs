@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using static Tool.Form1;
 
 namespace Tool
 {
@@ -314,6 +315,34 @@ namespace Tool
 
                 variants.Add(variant);
             }
+            if (variants.Count() == 0)
+            {
+                var metaTables = doc.DocumentNode
+                                .SelectNodes("//table[.//th[contains(translate(string(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', 'abcdefghijklmnopqrstuvwxyz'), 'informationtype')]]");
+
+
+                var fieldTables = doc.DocumentNode
+                                   .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
+
+                if (metaTables != null)
+                {
+                    foreach (var metaTable in metaTables)
+                    {
+                        var variant = new VariantModel(); 
+
+                        ParseMetadata(metaTable, variant);
+
+                        var fieldTable = fieldTables?
+                            .Where(t => t.StreamPosition > metaTable.StreamPosition)
+                            .OrderBy(t => t.StreamPosition)
+                            .FirstOrDefault();
+
+                        variant.Fields = ParseFieldTable(fieldTable);
+
+                        variants.Add(variant);
+                    }
+                }
+            }
             return variants;
         }
 
@@ -404,7 +433,7 @@ namespace Tool
 
         private async void btnClick_Click(object sender, EventArgs e)
         {
-            string confluenceUrl = txtUrl.Text;
+            string confluenceUrl = txtUrl.Text.Trim();
             var config = LoadConfig();
             string? username = config?.Email;
             string? apiToken = config?.ApiToken;
