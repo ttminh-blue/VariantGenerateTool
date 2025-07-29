@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
-using static Tool.Form1;
 
 namespace Tool
 {
@@ -17,6 +16,7 @@ namespace Tool
             public string CommandName { get; set; }
             public string DatasourceID { get; set; }
             public string Countries { get; set; }
+            public string SourceType { get; set; }
             public List<VariantModel> ListVariants { get; set; }
             public List<DatasourceConfigModel> DatasourceConfigs { get; set; }
         }
@@ -81,6 +81,11 @@ namespace Tool
             sb.AppendLine($"    private const int _commandID          = CommandTypeIds.{className};");
             sb.AppendLine($"    private const string _datasourceGroupName = \"{ds.DatasourceGroupName}\";");
             sb.AppendLine($"    private const string _datasourceName      = \"{ds.DatasourceName}\";");
+            sb.AppendLine($"    private const int _productEnum      = (int)ProductEnum.IdentityVerification;");
+            if (!string.IsNullOrEmpty(ds.SourceType))
+            {
+                sb.AppendLine($"    private const string _sourceType      = \"{ds.SourceType}\";");
+            }
             sb.AppendLine($"    private const string _commandName         = \"{className}\";");
             sb.AppendLine($"    private static readonly int[] _countryIDs = [(int)CountryEnum.{countries}];");
             sb.AppendLine();
@@ -97,7 +102,8 @@ namespace Tool
                 sb.AppendLine("    [");
 
                 int maxFieldNameLen = variant.Fields.Max(f => f.FieldName.Length);
-
+                bool isFirst = true;
+                int index = 0;
                 foreach (var field in variant.Fields)
                 {
                     string fieldName = field.FieldName.PadRight(maxFieldNameLen);
@@ -108,12 +114,20 @@ namespace Tool
 
                     string comment = !string.IsNullOrWhiteSpace(field.Comments) ? $" // {field.Comments}" : "";
 
-                    sb.AppendLine(
-                        $"        ((int)FieldEnum.{fieldName}, {required}, {optional}, {output}, {appended}), {comment}"
-                    );
+                    string indent = isFirst ? "          " : "              ";
+
+                    string comma = ",";
+                    if (variant.Fields.Count == ++index)
+                    {
+                        comma = "";
+                    }
+
+                    sb.AppendLine($"{indent}((int)FieldEnum.{fieldName}, {required}, {optional}, {output}, {appended}){comma}{comment}");
+
+                    isFirst = false;
                 }
 
-                sb.AppendLine("    ];");
+                sb.AppendLine("        ];");
                 sb.AppendLine();
                 variantIndex++;
             }
@@ -138,7 +152,7 @@ namespace Tool
             sb.AppendLine("            DatasourceName  = _datasourceName,");
             sb.AppendLine("            CommandName     = _commandName,");
             sb.AppendLine("            Industries      = Enum.GetValues(typeof(IndustryEnum)).Cast<IndustryEnum>().Select(x => (int)x).ToArray(),");
-            sb.AppendLine("            ProductList     = [(int)ProductEnum.IdentityVerification],");
+            sb.AppendLine("            ProductList     = [_productEnum],");
             sb.AppendLine("            IsTestable      = true,");
             sb.AppendLine("            AllowAppendData = true,");
             sb.AppendLine($"            CountryFields   = new Dictionary<int, int[]> {{ {{ (int)CountryEnum.{countries}, [] }} }}");
@@ -160,13 +174,14 @@ namespace Tool
                 sb.AppendLine("            {");
                 sb.AppendLine("                DatasourceGroupName = _datasourceGroupName,");
                 sb.AppendLine("                DatasourceId        = _datasourceID,");
+                sb.AppendLine("                ProductId           = _productEnum,");
                 sb.AppendLine($"                Fields              = {fieldVar}.Select(x => x.fieldId).ToArray(),");
                 sb.AppendLine("                CountryIds          = _countryIDs,");
                 sb.AppendLine($"                RequiredFields      = [..{fieldVar}.Where(f => f.isRequired).Select(x => x.fieldId)],");
                 sb.AppendLine($"                OptionalFields      = [..{fieldVar}.Where(f => f.isOptional).Select(x => x.fieldId)],");
                 sb.AppendLine($"                OutputFields        = [..{fieldVar}.Where(f => f.isOutput).Select(x => x.fieldId)],");
                 sb.AppendLine($"                AppendedFields      = [..{fieldVar}.Where(f => f.isAppended).Select(x => x.fieldId)],");
-                sb.AppendLine("                SourceType          = _datasourceGroupName,");
+                sb.AppendLine("                SourceType          = _sourceType,");
                 string parsedPriority = variant.Priority ? "true" : "false";
                 sb.AppendLine($"                Priority            = {parsedPriority},");
                 sb.AppendLine($"                AddressFormat       = (int)AddressFormatEnum.{addressFormat},");
@@ -182,17 +197,41 @@ namespace Tool
                 sb.AppendLine();
                 sb.AppendLine("        DatasourceConfigurationParameters =");
                 sb.AppendLine("        [");
-
-                foreach (var config in datasource.DatasourceConfigs)
+                if (datasource.DatasourceConfigs.Count() == 0)
                 {
                     sb.AppendLine("            new DatasourceConfigurationParameterData");
                     sb.AppendLine("            {");
                     sb.AppendLine($"                DatasourceId = _datasourceID,");
-                    sb.AppendLine($"                Name = \"{config.ConfigurationParameter}\",");
+                    sb.AppendLine($"                Name = GapiServiceUtil.IsRealTimeDsConfigName,");
                     sb.AppendLine($"                CountryId = (int)CountryEnum.{countries},");
-                    sb.AppendLine($"                Value = \"{config.ConfigurationValue}\",");
-                    sb.AppendLine($"                Note = \"{config.Notes.Replace("\"", "\\\"")}\"");
+                    sb.AppendLine($"                Value = \"False\",");
+                    sb.AppendLine($"                Note = \"real-time or standard config parameter\"");
                     sb.AppendLine("            },");
+                }
+                else
+                {
+                    foreach (var config in datasource.DatasourceConfigs)
+                    {
+                        sb.AppendLine("            new DatasourceConfigurationParameterData");
+                        sb.AppendLine("            {");
+                        sb.AppendLine($"                DatasourceId = _datasourceID,");
+                        sb.AppendLine($"                Name = \"{config.ConfigurationParameter}\",");
+                        sb.AppendLine($"                CountryId = (int)CountryEnum.{countries},");
+                        sb.AppendLine($"                Value = \"{config.ConfigurationValue}\",");
+                        sb.AppendLine($"                Note = \"{config.Notes.Replace("\"", "\\\"")}\"");
+                        sb.AppendLine("            },");
+                    }
+                    if (!datasource.DatasourceConfigs.Any(x => x.ConfigurationParameter == "IsRealTimeSource"))
+                    {
+                        sb.AppendLine("            new DatasourceConfigurationParameterData");
+                        sb.AppendLine("            {");
+                        sb.AppendLine($"                DatasourceId = _datasourceID,");
+                        sb.AppendLine($"                Name = GapiServiceUtil.IsRealTimeDsConfigName,");
+                        sb.AppendLine($"                CountryId = (int)CountryEnum.{countries},");
+                        sb.AppendLine($"                Value = \"False\",");
+                        sb.AppendLine($"                Note = \"real-time or standard config parameter\"");
+                        sb.AppendLine("            },");
+                    }
                 }
 
                 sb.AppendLine("        ];");
@@ -247,6 +286,10 @@ namespace Tool
                     case "countries":
                         info.Countries = value;
                         break;
+
+                    case "source type":
+                        info.SourceType = value;
+                        break;
                 }
             }
 
@@ -284,36 +327,38 @@ namespace Tool
         private List<VariantModel> GetVariants(HtmlAgilityPack.HtmlDocument doc)
         {
             var variants = new List<VariantModel>();
-            var variantNodes = doc.DocumentNode.SelectNodes("//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'variant')]");
+            var variantNodes = doc.DocumentNode.SelectNodes("//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'variant')]");
 
-            if (variantNodes == null) return variants;
-
-            foreach (var variantNode in variantNodes)
+            if (variantNodes != null)
             {
-                var variant = new VariantModel();
-                variant.VariantName = variantNode.InnerText.Trim();
-                if (!variant.VariantName.StartsWith("Variant"))
-                    continue;
+                foreach (var variantNode in variantNodes)
+                {
+                    var variant = new VariantModel();
+                    variant.VariantName = variantNode.InnerText.Trim();
+                    if (!variant.VariantName.StartsWith("Variant"))
+                        continue;
 
-                HtmlNode? metaTable = doc.DocumentNode
-                                    .SelectNodes("//table[.//th[contains(translate(string(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', 'abcdefghijklmnopqrstuvwxyz'), 'informationtype')]]")
-                                    ?.OrderBy(t => Math.Abs(t.StreamPosition - variantNode.StreamPosition))
-                                    .FirstOrDefault();
+                    HtmlNode? metaTable = doc.DocumentNode
+                                        .SelectNodes("//table[.//th[contains(translate(string(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', 'abcdefghijklmnopqrstuvwxyz'), 'informationtype')]]")
+                                        ?.OrderBy(t => Math.Abs(t.StreamPosition - variantNode.StreamPosition))
+                                        .FirstOrDefault();
 
 
-                ParseMetadata(metaTable, variant);
+                    ParseMetadata(metaTable, variant);
 
-                var fieldTables = doc.DocumentNode
-                                 .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
+                    var fieldTables = doc.DocumentNode
+                                     .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
 
-                var table = fieldTables?
-                    .Where(t => t.StreamPosition > variantNode.StreamPosition)
-                    .OrderBy(t => t.StreamPosition)
-                    .FirstOrDefault();
+                    var table = fieldTables?
+                        .Where(t => t.StreamPosition > variantNode.StreamPosition)
+                        .OrderBy(t => t.StreamPosition)
+                        .FirstOrDefault();
 
-                variant.Fields = ParseFieldTable(table);
+                    variant.Fields = ParseFieldTable(table);
 
-                variants.Add(variant);
+                    if (!variants.Any(v => v.VariantName == variant.VariantName))
+                        variants.Add(variant);
+                }
             }
             if (variants.Count() == 0)
             {
@@ -328,7 +373,7 @@ namespace Tool
                 {
                     foreach (var metaTable in metaTables)
                     {
-                        var variant = new VariantModel(); 
+                        var variant = new VariantModel();
 
                         ParseMetadata(metaTable, variant);
 

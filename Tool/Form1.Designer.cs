@@ -73,6 +73,7 @@
             txtContent.ScrollBars = ScrollBars.Both;
             txtContent.Size = new Size(1551, 812);
             txtContent.TabIndex = 3;
+            txtContent.ReadOnly = true;
             // 
             // txtCopy
             // 
