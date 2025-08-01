@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Tool
 {
-    public partial class Form1 : Form
+    public partial class GenerateVariants : Form
     {
         private DataSourceInfo datasource = new DataSourceInfo();
         public class DataSourceInfo
@@ -470,7 +470,7 @@ namespace Tool
             string json = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<ConfigModel>(json);
         }
-        public Form1()
+        public GenerateVariants()
         {
             InitializeComponent();
             txtContent.Font = new Font("Consolas", 10);

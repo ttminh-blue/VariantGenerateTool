@@ -1,6 +1,6 @@
 ﻿namespace Tool
 {
-    partial class Form1
+    partial class GenerateMigrations
     {
         /// <summary>
         ///  Required designer variable.
@@ -52,7 +52,6 @@
             btnClick.TabIndex = 1;
             btnClick.Text = "Click";
             btnClick.UseVisualStyleBackColor = true;
-            btnClick.Click += btnClick_Click;
             // 
             // label1
             // 
@@ -70,10 +69,10 @@
             txtContent.Margin = new Padding(4, 5, 4, 5);
             txtContent.Multiline = true;
             txtContent.Name = "txtContent";
+            txtContent.ReadOnly = true;
             txtContent.ScrollBars = ScrollBars.Both;
             txtContent.Size = new Size(1551, 812);
             txtContent.TabIndex = 3;
-            txtContent.ReadOnly = true;
             // 
             // txtCopy
             // 
@@ -84,9 +83,8 @@
             txtCopy.TabIndex = 4;
             txtCopy.Text = "Copy";
             txtCopy.UseVisualStyleBackColor = true;
-            txtCopy.Click += txtCopy_Click;
             // 
-            // Form1
+            // GenerateMigrations
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -97,8 +95,9 @@
             Controls.Add(btnClick);
             Controls.Add(txtUrl);
             Margin = new Padding(4, 5, 4, 5);
-            Name = "Form1";
-            Text = "Generate Variants";
+            Name = "GenerateMigrations";
+            Text = "Generate Migrations";
+            Load += GenerateMigrations_Load;
             ResumeLayout(false);
             PerformLayout();
         }
