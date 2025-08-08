@@ -74,7 +74,11 @@ namespace Tool
             {
                 className = "GeneratedClass";
             }
-            var countries = CountriesDict.NameToCode[ds.Countries];
+            var countries = "";
+            if (ds.Countries != null)
+            {
+                countries = CountriesDict.NameToCode[ds.Countries];
+            }
             sb.AppendLine($"public class {className} : CreateDatasourceRequest");
             sb.AppendLine("{");
             sb.AppendLine($"    private const int _datasourceID        = DatasourceIds.{className};");
@@ -475,6 +479,11 @@ namespace Tool
             InitializeComponent();
             txtContent.Font = new Font("Consolas", 10);
         }
+        public string ExtractPageIdFromUrl(string url)
+        {
+            var match = Regex.Match(url, @"pages/(\d+)");
+            return match.Success ? match.Groups[1].Value : null;
+        }
 
         private async void btnClick_Click(object sender, EventArgs e)
         {
@@ -490,7 +499,10 @@ namespace Tool
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                var response = await client.GetAsync(confluenceUrl);
+                string pageId = ExtractPageIdFromUrl(confluenceUrl);
+                string apiUrl = $"https://trulioo.atlassian.net/wiki/rest/api/content/{pageId}?expand=body.view";
+
+                var response = await client.GetAsync(apiUrl);
                 var content = await response.Content.ReadAsStringAsync();
                 var doc = new HtmlAgilityPack.HtmlDocument();
                 doc.LoadHtml(content);
