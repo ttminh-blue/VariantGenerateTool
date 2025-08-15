@@ -331,39 +331,39 @@ namespace Tool
         private List<VariantModel> GetVariants(HtmlAgilityPack.HtmlDocument doc)
         {
             var variants = new List<VariantModel>();
-            var variantNodes = doc.DocumentNode.SelectNodes("//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'variant')]");
+            //var variantNodes = doc.DocumentNode.SelectNodes("//p[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'variant')]");
 
-            if (variantNodes != null)
-            {
-                foreach (var variantNode in variantNodes)
-                {
-                    var variant = new VariantModel();
-                    variant.VariantName = variantNode.InnerText.Trim();
-                    if (!variant.VariantName.StartsWith("Variant"))
-                        continue;
+            //if (variantNodes != null)
+            //{
+            //    foreach (var variantNode in variantNodes)
+            //    {
+            //        var variant = new VariantModel();
+            //        variant.VariantName = variantNode.InnerText.Trim();
+            //        if (!variant.VariantName.StartsWith("Variant"))
+            //            continue;
 
-                    HtmlNode? metaTable = doc.DocumentNode
-                                        .SelectNodes("//table[.//th[contains(translate(string(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', 'abcdefghijklmnopqrstuvwxyz'), 'informationtype')]]")
-                                        ?.OrderBy(t => Math.Abs(t.StreamPosition - variantNode.StreamPosition))
-                                        .FirstOrDefault();
+            //        HtmlNode? metaTable = doc.DocumentNode
+            //                            .SelectNodes("//table[.//th[contains(translate(string(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', 'abcdefghijklmnopqrstuvwxyz'), 'informationtype')]]")
+            //                            ?.OrderBy(t => Math.Abs(t.StreamPosition - variantNode.StreamPosition))
+            //                            .FirstOrDefault();
 
 
-                    ParseMetadata(metaTable, variant);
+            //        ParseMetadata(metaTable, variant);
 
-                    var fieldTables = doc.DocumentNode
-                                     .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
+            //        var fieldTables = doc.DocumentNode
+            //                         .SelectNodes("//table[.//th[contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'fieldname') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'view name') or contains(translate(string(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), 'gg field')]]");
 
-                    var table = fieldTables?
-                        .Where(t => t.StreamPosition > variantNode.StreamPosition)
-                        .OrderBy(t => t.StreamPosition)
-                        .FirstOrDefault();
+            //        var table = fieldTables?
+            //            .Where(t => t.StreamPosition > variantNode.StreamPosition)
+            //            .OrderBy(t => t.StreamPosition)
+            //            .FirstOrDefault();
 
-                    variant.Fields = ParseFieldTable(table);
+            //        variant.Fields = ParseFieldTable(table);
 
-                    if (!variants.Any(v => v.VariantName == variant.VariantName))
-                        variants.Add(variant);
-                }
-            }
+            //        if (!variants.Any(v => v.VariantName == variant.VariantName))
+            //            variants.Add(variant);
+            //    }
+            //}
             if (variants.Count() == 0)
             {
                 var metaTables = doc.DocumentNode
@@ -391,7 +391,7 @@ namespace Tool
                         variants.Add(variant);
                     }
                 }
-            }
+                }
             return variants;
         }
 
